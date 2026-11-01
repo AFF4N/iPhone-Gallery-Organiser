@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallery Organiser</title>
+<meta name="description" content="Pick photos from an iPhone import folder, organise them into Year/Month folders, and view the result.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>Gallery Organiser</h1>
+  <nav>
+    <button id="tab-select" class="active"><span>1</span>Select</button>
+    <button id="tab-result"><span>2</span>Organised</button>
+  </nav>
+</header>
+<main>
+  <!-- Step 1: load + select -->
+  <section id="view-select">
+    <div class="bar">
+      <span class="lbl">From</span>
+      <div class="field"><input type="text" id="src" placeholder="Import folder path"><button class="inline" id="src-pick">Browse…</button></div>
+    </div>
+    <div class="bar">
+      <span class="lbl">To</span>
+      <div class="field"><input type="text" id="dst" placeholder="Target folder path"><button class="inline" id="dst-pick">Browse…</button></div>
+    </div>
+    <div class="selbar" id="selbar" hidden>
+      <input type="checkbox" id="sel-master" title="Select all / none" aria-label="Select all or none">
+      <span class="count" id="count"></span>
+      <span class="meta" id="import-meta"></span>
+      <div class="sort-wrap">
+        <label for="import-sort" class="sort-lbl">Sort:</label>
+        <select id="import-sort" class="sort-select" aria-label="Sort files">
+          <option value="date-desc" selected>Date (Newest first)</option>
+          <option value="date-asc">Date (Oldest first)</option>
+          <option value="size-desc">Size (Largest first)</option>
+          <option value="size-asc">Size (Smallest first)</option>
+          <option value="type-asc">Type (A–Z)</option>
+          <option value="type-desc">Type (Z–A)</option>
+          <option value="name-asc">Name (A–Z)</option>
+          <option value="name-desc">Name (Z–A)</option>
+        </select>
+      </div>
+      <button class="btn" id="src-refresh" title="Rescan the import folder for new files (keeps your exclusions)">↻ Refresh</button>
+      <button class="btn primary" id="go">Organise</button>
+    </div>
+    <div id="import-grid" class="grid pick">
+      <div class="empty" id="import-empty">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <h3>No photos or videos loaded</h3>
+        <p>Choose an import folder above to begin.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2: progress + organised folder -->
+  <section id="view-result" hidden>
+    <div class="bar res-bar" id="res-bar" hidden>
+      <span class="meta" id="res-path"></span>
+      <span class="meta" id="res-meta"></span>
+      <div class="actions">
+        <button class="btn" id="res-refresh" title="Rescan the folder for new files">↻ Refresh</button>
+        <button class="btn primary" id="res-open" title="Open this folder in Windows Explorer">Open Folder</button>
+      </div>
+    </div>
+    <div class="progress" id="progress" hidden><div id="bar"></div></div>
+    <div id="folders" class="folders"></div>
+    <div class="split" id="res-split" hidden>
+      <nav id="tree" aria-label="Organised folders"></nav>
+      <div id="pane"></div>
+    </div>
+    <div id="res-empty" class="empty">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+      </svg>
+      <h3>No target folder chosen</h3>
+      <p>Select a target folder in Step 1 or browse for an existing organised folder.</p>
+      <button class="btn primary" id="res-empty-pick">Browse Target Folder…</button>
+    </div>
+  </section>
+</main>
+
+<dialog id="export-dlg">
+  <form method="dialog" id="export-form">
+    <h3>Export options</h3>
+    <div class="sub" id="ex-summary"></div>
+    <fieldset>
+      <legend>Mode</legend>
+      <label class="opt"><input type="radio" name="mode" value="copy" checked><span>Copy<small>Keep the originals in the import folder</small></span></label>
+      <label class="opt"><input type="radio" name="mode" value="move"><span>Move<small>Remove files from the import folder after transfer</small></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Folder layout</legend>
+      <select id="ex-layout" aria-label="Folder layout">
+        <option value="ym">Year / Month — 2025/03</option>
+        <option value="ymn">Year / Month name — 2025/03 - March</option>
+        <option value="y">Year only — 2025</option>
+      </select>
+    </fieldset>
+    <div class="warn" id="ex-warn" hidden>Files will be removed from the import folder.</div>
+    <div class="actions">
+      <button class="btn" value="cancel" id="ex-cancel">Cancel</button>
+      <button class="btn primary" value="ok" id="ex-ok">Start organising</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="viewer" hidden>
+  <div id="v-top"><span id="v-title"></span>
+    <span><button id="v-info" aria-label="Info" title="Info (i)">i</button><button id="v-close" aria-label="Close">✕</button></span></div>
+  <button class="v-nav" id="v-prev" aria-label="Previous">‹</button>
+  <div id="v-stage"></div>
+  <button class="v-nav" id="v-next" aria-label="Next">›</button>
+  <aside id="v-drawer" hidden><h3>Info</h3><div id="v-meta"></div></aside>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Python 3.9+ (developed on 3.12). The core app needs nothing beyond the standard library.
+# Optional but recommended: lets the browser preview HEIC/HEIF photos.
+pillow>=10.0
+pillow-heif>=0.16
+# Also used by organize_photos.py (the original EXIF-via-Pillow script): pillow
+# ExifTool is NOT a pip package - see README.md.

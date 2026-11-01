@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# App runtime preview cache (generated automatically)
+**/.preview_cache/
+
+# ExifTool binaries & scripts (download separately as per README instructions)
+ExifTool/
+exiftool.exe
+exiftool_files/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
